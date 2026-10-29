@@ -1,0 +1,775 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)">
+  <meta name="description" content="Compare seus arquivos do Instagram sem conectar sua conta. Offline e privado.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <meta name="color-scheme" content="light dark">
+  
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='11' fill='none' stroke='%232563eb' stroke-width='5'/%3E%3C/svg%3E">
+  <script>try{document.documentElement.setAttribute('data-theme',localStorage.getItem('laco_theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'))}catch(e){}</script>
+
+  <title>Laço — Comparador de seguidores</title>
+
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --surface-card: #f1f5f9;
+      --surface-hover: #e2e8f0;
+      --border: #cbd5e1;
+      --border-accent: #94a3b8;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --primary: #1e293b;
+      --primary-hover: #0f172a;
+      --accent: #2563eb;
+      --red: #dc2626;
+      --green: #16a34a;
+      --radius: 12px;
+      --font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    [data-theme="dark"] {
+      --bg: #09090b;
+      --surface: #121215;
+      --surface-card: #18181b;
+      --surface-hover: #27272a;
+      --border: #27272a;
+      --border-accent: #3f3f46;
+      --text: #f4f4f5;
+      --text-muted: #a1a1aa;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --accent: #60a5fa;
+      --red: #ef4444;
+      --green: #22c55e;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      min-height: 100vh;
+      min-height: 100dvh;
+      line-height: 1.5;
+    }
+
+    main {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 36px 20px 60px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+    }
+
+    .brand {
+      font-weight: 800;
+      font-size: 24px;
+      letter-spacing: -1px;
+      color: var(--text);
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .badge {
+      font-size: 12px;
+      font-weight: 500;
+      padding: 6px 14px;
+      border-radius: 100px;
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+
+    .theme-toggle {
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .theme-toggle:hover { background: var(--surface-hover); }
+
+    h1 {
+      font-size: clamp(30px, 4vw, 44px);
+      font-weight: 800;
+      letter-spacing: -1px;
+      line-height: 1.15;
+      margin-bottom: 12px;
+    }
+
+    .intro {
+      color: var(--text-muted);
+      font-size: 15px;
+      max-width: 640px;
+      margin-bottom: 28px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      background: var(--surface-card);
+      padding: 4px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      width: fit-content;
+      max-width: 100%;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+
+    .tabs button {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .tabs button.active {
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      margin-bottom: 24px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .upload {
+      border: 2px dashed var(--border-accent);
+      border-radius: var(--radius);
+      padding: 20px;
+      background: var(--surface-card);
+      position: relative;
+    }
+
+    .upload:hover, .upload:focus-within {
+      border-color: var(--accent);
+    }
+
+    .upload label {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 15px;
+      color: var(--text);
+    }
+
+    .upload small {
+      display: block;
+      color: var(--text-muted);
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+
+    input[type="file"] {
+      font-size: 13px;
+      color: var(--text-muted);
+      width: 100%;
+    }
+
+    .status {
+      font-size: 13px;
+      margin-top: 10px;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    details.optional-history {
+      margin-top: 18px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface-card);
+    }
+
+    details.optional-history summary {
+      padding: 14px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .optional-body {
+      padding: 18px;
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .file-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+      align-items: center;
+    }
+
+    button, .btn {
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 11px 20px;
+      border-radius: 8px;
+      border: 1px solid var(--border-accent);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    button:hover:not(:disabled) {
+      background: var(--surface-hover);
+    }
+
+    button.primary {
+      background: var(--primary);
+      color: #ffffff;
+      border: none;
+    }
+
+    button.primary:hover:not(:disabled) {
+      background: var(--primary-hover);
+    }
+
+    /* BOTÃO DESATIVADO CORRIGIDO (BOM CONTRASTE DE LEITURA) */
+    button:disabled {
+      opacity: 0.55;
+      background: var(--surface-card) !important;
+      color: var(--text-muted) !important;
+      border: 1px solid var(--border) !important;
+      cursor: not-allowed;
+    }
+
+    button.btn-danger {
+      color: var(--red);
+      border-color: var(--red);
+      background: transparent;
+    }
+
+    button.btn-danger:hover {
+      background: var(--red);
+      color: #fff;
+    }
+
+    .stats {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+
+    .stats div {
+      display: flex;
+      flex-direction: column-reverse;
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      padding: 16px;
+      border-radius: var(--radius);
+      flex: 1;
+      min-width: 140px;
+    }
+
+    .stats dd {
+      display: block;
+      font-size: 26px;
+      color: var(--accent);
+    }
+
+    .stats dt {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin: 16px 0;
+    }
+
+    .toolbar input, .toolbar select {
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--text);
+      font: inherit;
+      font-size: 14px;
+    }
+
+    .toolbar input { flex: 1; min-width: 200px; }
+
+    ul { list-style: none; margin-top: 12px; }
+    li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    a { color: var(--accent); text-decoration: none; font-weight: 600; font-size: 14px; }
+    a:hover { text-decoration: underline; }
+
+    .notice {
+      font-size: 13px;
+      color: var(--text-muted);
+      background: var(--surface-card);
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-top: 16px;
+    }
+
+    footer {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 32px;
+      text-align: center;
+    }
+
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .hidden { display: none !important; }
+
+    @media (max-width: 650px) {
+      .grid { grid-template-columns: 1fr; }
+      main { padding: 20px 14px; }
+    }
+  </style>
+</head>
+<body>
+  <noscript><p style="padding:16px">Esta ferramenta precisa de JavaScript para comparar seus arquivos localmente no navegador.</p></noscript>
+  <main>
+    <header>
+      <div class="brand">◉ laço</div>
+      <div class="header-controls">
+        <div class="badge">Local · Sem senha · Offline</div>
+        <button id="theme-toggle" class="theme-toggle" type="button" aria-pressed="false" aria-label="Tema escuro">Tema</button>
+      </div>
+    </header>
+
+    <h1>Suas conexões,<br>com mais clareza.</h1>
+    <p class="intro">Compare seus arquivos do Instagram sem conectar sua conta. Os dados ficam apenas nesta página, na memória do seu navegador.</p>
+
+    <div class="tabs" role="group" aria-label="Tipo de comparação">
+      <button id="tab-back" class="active" type="button" aria-pressed="true">Quem não segue de volta</button>
+      <button id="tab-lost" type="button" aria-pressed="false">Quem saiu da lista</button>
+    </div>
+
+    <section class="panel">
+      <h2 id="mode-title" style="font-size: 20px; margin-bottom: 4px;">Compare seguindo e seguidores</h2>
+      <p id="mode-desc" style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">Use arquivos da mesma exportação para obter um retrato atual.</p>
+
+      <div class="grid">
+        <div class="upload" id="dz-a">
+          <label id="label-a" for="file-a">01 · Quem você segue</label>
+          <small id="hint-a">Selecione following.json (ou html).</small>
+          <input id="file-a" type="file" multiple accept=".json,.html,.htm" aria-describedby="hint-a status-a">
+          <div id="status-a" class="status" role="status">Nenhum arquivo selecionado</div>
+        </div>
+
+        <div class="upload" id="dz-b">
+          <label id="label-b" for="file-b">02 · Seus seguidores</label>
+          <small id="hint-b">Selecione followers_1.json, etc.</small>
+          <input id="file-b" type="file" multiple accept=".json,.html,.htm" aria-describedby="hint-b status-b">
+          <div id="status-b" class="status" role="status">Nenhum arquivo selecionado</div>
+        </div>
+      </div>
+
+      <details class="optional-history">
+        <summary>
+          <span><b>03 · Resultado anterior (opcional)</b></span>
+          <small style="color:var(--text-muted)">Ocultar perfis já vistos</small>
+        </summary>
+        <div class="optional-body">
+          <p style="color:var(--text-muted); font-size: 13px;" id="hint-history">Importe o CSV de uma comparação anterior ou o histórico JSON salvo aqui para ignorar perfis repetidos.</p>
+          <div class="file-row">
+            <input id="history-file" type="file" accept=".csv,.json" aria-label="Arquivo de resultado anterior (CSV ou JSON)" aria-describedby="hint-history history-status">
+            <button id="history-clear" type="button" class="btn-danger" style="padding: 6px 12px; font-size: 12px;">Remover histórico</button>
+          </div>
+          <div id="history-status" class="status" role="status" style="margin-top: 8px;">Sem resultado anterior</div>
+        </div>
+      </details>
+
+      <div class="actions">
+        <button id="compare" class="primary" disabled type="button">Comparar listas</button>
+        <button id="demo" type="button">Experimentar com exemplo</button>
+        <button id="clear" type="button">Limpar dados</button>
+      </div>
+
+      <p id="error" role="alert" style="color:var(--red); font-size:13px; margin-top:12px; font-weight:600;"></p>
+      <p class="notice" id="caution">Não seguir de volta não significa ter deixado de seguir você.</p>
+    </section>
+
+    <section id="results" class="panel hidden">
+      <h2 id="result-title" style="font-size: 20px; margin-bottom: 12px;">Resultado da Comparação</h2>
+      <dl class="stats" id="stats"></dl>
+      <p id="result-note" style="color: var(--text-muted); font-size: 13px; margin-bottom: 16px;"></p>
+
+      <div class="actions">
+        <button id="csv" type="button">Baixar CSV</button>
+        <button id="save-history" type="button">Salvar Histórico JSON</button>
+        <button id="snapshot" type="button">Salvar Lista de Seguidores</button>
+      </div>
+
+      <div class="toolbar">
+        <input id="search" type="search" placeholder="Buscar por usuário..." aria-label="Buscar por usuário">
+        <select id="batch-size-select" aria-label="Tamanho do lote">
+          <option value="5">Lotes de 5</option>
+          <option value="10" selected>Lotes de 10</option>
+          <option value="20">Lotes de 20</option>
+        </select>
+        <select id="sort-select" aria-label="Ordenação">
+          <option value="asc">A - Z</option>
+          <option value="desc">Z - A</option>
+        </select>
+      </div>
+
+      <p class="notice">Abrir muitos perfis de uma vez pode ser bloqueado pelo navegador e parecer atividade incomum no Instagram. Prefira lotes pequenos e permita pop-ups para esta página.</p>
+      <div id="batches" class="actions"></div>
+      <p id="open-status" role="status" style="color:var(--text-muted); font-size:13px; margin-top:8px;"></p>
+
+      <p id="count" role="status" style="color:var(--text-muted); font-size:13px; margin-top:12px; font-weight:600;"></p>
+      <ul id="list" role="list"></ul>
+      <button id="more" class="hidden" type="button" style="margin-top:16px; width:100%;">Mostrar mais</button>
+    </section>
+
+    <footer>
+      Ferramenta independente, sem vínculo com Instagram ou Meta. Não acessa sua conta e não envia seus arquivos.<br>Os arquivos CSV e de histórico que você baixa contêm nomes de outras pessoas; guarde-os com cuidado.
+    </footer>
+  </main>
+
+  <script>
+    'use strict';
+    let BATCH_SIZE = 10;
+    const $ = id => document.getElementById(id);
+
+    let mode = 'back', sets = { a: null, b: null }, result = [], filtered = [], shown = 100, revision = 0, loads = { a: 0, b: 0 }, openedBatches = new Set(), historyUsers = new Set(), rawResult = [];
+
+    // Tema (a preferência salva já foi aplicada no <head>)
+    const themeBtn = $('theme-toggle');
+    const syncTheme = () => themeBtn.setAttribute('aria-pressed', String(document.documentElement.getAttribute('data-theme') === 'dark'));
+    syncTheme();
+    themeBtn.onclick = () => {
+      const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      try { localStorage.setItem('laco_theme', next); } catch {}
+      syncTheme();
+    };
+
+    function normalize(s) {
+      s = String(s || '').trim().replace(/^@/, '');
+      return /^[a-zA-Z0-9._]{1,30}$/.test(s) ? s.toLowerCase() : null;
+    }
+
+    function fromUrl(h) {
+      try {
+        const u = new URL(h);
+        if (!['instagram.com', 'www.instagram.com'].includes(u.hostname)) return null;
+        const p = u.pathname.split('/').filter(Boolean);
+        return normalize(p[0] === '_u' ? p[1] : p.length === 1 ? p[0] : '');
+      } catch {
+        return null;
+      }
+    }
+
+    function parseJSON(data) {
+      let rows;
+      if (data && data.laco_snapshot === 1) {
+        if (!Array.isArray(data.followers)) throw Error('Lista salva inválida.');
+        return { users: new Set(data.followers.map(normalize).filter(Boolean)), kind: 'followers', date: data.saved_at || null };
+      }
+      if (Array.isArray(data)) rows = data;
+      else if (Array.isArray(data?.relationships_following)) rows = data.relationships_following;
+      else if (Array.isArray(data?.relationships_followers)) rows = data.relationships_followers;
+      else throw Error('Estrutura JSON não reconhecida.');
+
+      const users = new Set();
+      for (const row of rows) {
+        if (!row || !Array.isArray(row.string_list_data)) throw Error('Formato não reconhecido.');
+        for (const item of row.string_list_data) {
+          const n = normalize(item.value) || fromUrl(item.href);
+          if (n) users.add(n);
+        }
+      }
+      return { users, kind: Array.isArray(data?.relationships_following) ? 'following' : null, date: null };
+    }
+
+    function parseText(text, name) {
+      if (/\.json$/i.test(name)) return parseJSON(JSON.parse(text.replace(/^\uFEFF/, '')));
+      if (/\.html?$/i.test(name)) {
+        const doc = new DOMParser().parseFromString(text, 'text/html');
+        const users = new Set([...doc.querySelectorAll('a[href]')].map(a => fromUrl(a.getAttribute('href'))).filter(Boolean));
+        return { users, kind: null, date: null };
+      }
+      throw Error('Selecione arquivos JSON ou HTML.');
+    }
+
+    function reset() {
+      revision++;
+      clearHistory(false);
+      rawResult = [];
+      sets = { a: null, b: null };
+      result = [];
+      for (const k of ['a', 'b']) {
+        $('file-' + k).value = '';
+        $('status-' + k).textContent = 'Nenhum arquivo selecionado';
+      }
+      $('results').classList.add('hidden');
+      $('open-status').textContent = '';
+      $('list').replaceChildren();
+      $('error').textContent = '';
+      $('search').value = '';
+      $('compare').disabled = true;
+    }
+
+    function changeMode(next) {
+      mode = next;
+      reset();
+      $('tab-back').classList.toggle('active', mode === 'back');
+      $('tab-lost').classList.toggle('active', mode === 'lost');
+      $('tab-back').setAttribute('aria-pressed', String(mode === 'back'));
+      $('tab-lost').setAttribute('aria-pressed', String(mode === 'lost'));
+      $('caution').classList.toggle('hidden', mode === 'lost');
+      const lost = mode === 'lost';
+      $('mode-title').textContent = lost ? 'Compare dois momentos' : 'Compare seguindo e seguidores';
+      $('label-a').textContent = lost ? '01 · Seguidores anteriores' : '01 · Quem você segue';
+      $('label-b').textContent = lost ? '02 · Seguidores atuais' : '02 · Seus seguidores';
+      $('hint-a').textContent = lost ? 'Lista antiga: followers*.json ou HTML.' : 'Selecione following.json (ou html).';
+    }
+
+    async function load(k) {
+      const generation = revision, token = ++loads[k];
+      sets[k] = null;
+      $('results').classList.add('hidden');
+      $('compare').disabled = true;
+      $('error').textContent = '';
+      const files = [...$('file-' + k).files];
+      if (!files.length) {
+        $('status-' + k).textContent = 'Nenhum arquivo selecionado';
+        return;
+      }
+      $('status-' + k).textContent = 'Lendo arquivos…';
+      try {
+        const users = new Set();
+        for (const f of files) {
+          const parsed = parseText(await f.text(), f.name);
+          if (generation !== revision || token !== loads[k]) return;
+          for (const u of parsed.users) users.add(u);
+        }
+        sets[k] = users;
+        $('status-' + k).textContent = users.size.toLocaleString('pt-BR') + ' perfis únicos';
+        $('compare').disabled = !(sets.a && sets.b);
+      } catch (e) {
+        $('status-' + k).textContent = 'Erro ao importar';
+        $('error').textContent = e.message;
+      }
+    }
+
+    function diff(a, b) {
+      return [...a].filter(x => !b.has(x)).sort();
+    }
+
+    function compare(demo = false) {
+      if (!sets.a || !sets.b) return;
+      rawResult = diff(sets.a, sets.b);
+      result = diff(new Set(rawResult), historyUsers);
+
+      const mutuals = [...sets.a].filter(x => sets.b.has(x)).length;
+
+      $('results').classList.remove('hidden');
+      $('stats').replaceChildren();
+      
+      const stat = (val, lbl) => {
+        const d = document.createElement('div'), dt = document.createElement('dt'), dd = document.createElement('dd');
+        dt.textContent = lbl;
+        dd.textContent = val.toLocaleString('pt-BR');
+        d.append(dt, dd);
+        $('stats').append(d);
+      };
+
+      stat(sets.a.size, mode === 'back' ? 'você segue' : 'seguidores anteriores');
+      stat(sets.b.size, mode === 'back' ? 'seguidores atuais' : 'seguidores atuais');
+      stat(mutuals, 'mútuos');
+      stat(result.length, mode === 'back' ? 'não seguem de volta' : 'ausentes na lista');
+
+      $('result-title').textContent = (demo ? 'Exemplo fictício · ' : '') + (mode === 'back' ? 'Quem não segue você de volta' : 'Quem saiu da lista');
+      filter();
+    }
+
+    function filter() {
+      openedBatches.clear();
+      $('open-status').textContent = '';
+      const q = $('search').value.trim().toLowerCase().replace(/^@/, '');
+      filtered = result.filter(x => x.includes(q));
+
+      const sortMode = $('sort-select').value;
+      filtered.sort((a, b) => sortMode === 'asc' ? a.localeCompare(b) : b.localeCompare(a));
+
+      shown = 100;
+      render();
+    }
+
+    function render() {
+      renderBatches();
+      $('list').replaceChildren();
+      for (const n of filtered.slice(0, shown)) {
+        const li = document.createElement('li'), name = document.createElement('span'), a = document.createElement('a');
+        name.textContent = '@' + n;
+        a.href = `https://www.instagram.com/${encodeURIComponent(n)}/`;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.textContent = 'Ver perfil ↗';
+        a.setAttribute('aria-label', `Ver perfil de @${n} (abre em nova aba)`);
+        li.append(name, a);
+        $('list').append(li);
+      }
+      $('count').textContent = filtered.length ? `${Math.min(shown, filtered.length)} de ${filtered.length} perfis` : 'Nenhum perfil encontrado.';
+      $('more').classList.toggle('hidden', shown >= filtered.length);
+    }
+
+    function getBatches(users) {
+      const batches = [];
+      for (let start = 0; start < users.length; start += BATCH_SIZE) {
+        batches.push({ start, end: Math.min(start + BATCH_SIZE, users.length), users: users.slice(start, start + BATCH_SIZE) });
+      }
+      return batches;
+    }
+
+    function renderBatches() {
+      $('batches').replaceChildren();
+      getBatches(filtered).forEach((batch, index) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = `Bloco ${index + 1} (${batch.start + 1}–${batch.end})${openedBatches.has(index) ? ' ✓' : ''}`;
+        btn.onclick = () => openBatch(index);
+        $('batches').append(btn);
+      });
+    }
+
+    function openBatch(index) {
+      const batch = getBatches(filtered)[index];
+      if (!batch) return;
+      for (const n of batch.users) window.open(`https://www.instagram.com/${encodeURIComponent(n)}/`, '_blank', 'noopener,noreferrer');
+      openedBatches.add(index);
+      renderBatches();
+      $('open-status').textContent = `Solicitada a abertura do Bloco ${index + 1} (${batch.users.length} perfis).`;
+    }
+
+    function download(text, name, type) {
+      const url = URL.createObjectURL(new Blob([text], { type })), a = document.createElement('a');
+      a.href = url; a.download = name; a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    function parseHistory(text, name) {
+      text = text.replace(/^\uFEFF/, '');
+      if (/\.json$/i.test(name)) {
+        const data = JSON.parse(text);
+        if (data.laco_history !== 1 || !Array.isArray(data.users)) throw Error('Use o histórico salvo pelo botão próprio.');
+        return new Set(data.users.map(normalize).filter(Boolean));
+      }
+      if (!/\.csv$/i.test(name)) throw Error('Selecione CSV ou JSON de histórico.');
+      const lines = text.trim().split(/\r?\n/);
+      lines.shift();
+      const users = new Set();
+      for (const line of lines) {
+        const match = line.match(/^"@([a-zA-Z0-9._]{1,30})"/);
+        if (match) users.add(match[1].toLowerCase());
+      }
+      return users;
+    }
+
+    function clearHistory(recompare = true) {
+      historyUsers = new Set();
+      $('history-file').value = '';
+      $('history-status').textContent = 'Sem resultado anterior';
+      if (recompare && sets.a && sets.b) compare();
+    }
+
+    async function loadHistory() {
+      const file = $('history-file').files[0];
+      if (!file) { clearHistory(); return; }
+      try {
+        historyUsers = parseHistory(await file.text(), file.name);
+        $('history-status').textContent = `${historyUsers.size} nomes anteriores carregados`;
+        if (sets.a && sets.b) compare();
+      } catch (e) {
+        historyUsers = new Set();
+        $('history-status').textContent = 'Histórico inválido: nenhum nome anterior foi aplicado';
+        if (sets.a && sets.b) compare();
+      }
+    }
+
+    $('history-file').onchange = loadHistory;
+    $('history-clear').onclick = () => clearHistory();
+    $('tab-back').onclick = () => changeMode('back');
+    $('tab-lost').onclick = () => changeMode('lost');
+    $('file-a').onchange = () => load('a');
+    $('file-b').onchange = () => load('b');
+    $('clear').onclick = reset;
+    $('compare').onclick = () => compare();
+    $('search').oninput = filter;
+    $('sort-select').onchange = filter;
+    $('batch-size-select').onchange = (e) => { BATCH_SIZE = parseInt(e.target.value, 10); filter(); };
+    $('more').onclick = () => { shown += 100; render(); };
+
+    $('csv').onclick = () => download('\uFEFFusuario;perfil\r\n' + result.map(n => `"@${n}";"https://www.instagram.com/${n}/"`).join('\r\n'), `laco-${mode}-${new Date().toISOString().slice(0,10)}.csv`, 'text/csv;charset=utf-8');
+
+    $('save-history').onclick = () => download(JSON.stringify({ laco_history: 1, mode, saved_at: new Date().toISOString(), users: [...new Set([...historyUsers, ...rawResult])].sort() }, null, 2), `laco-historico-${mode}.json`, 'application/json');
+    $('snapshot').onclick = () => download(JSON.stringify({ laco_snapshot: 1, saved_at: new Date().toISOString(), followers: [...sets.b].sort() }, null, 2), 'laco-seguidores.json', 'application/json');
+
+    $('demo').onclick = () => {
+      reset();
+      sets = { a: new Set(['ana.exemplo', 'bruno.exemplo', 'carla.exemplo']), b: new Set(['ana.exemplo', 'davi.exemplo']) };
+      $('status-a').textContent = 'Exemplo fictício · 3 perfis';
+      $('status-b').textContent = 'Exemplo fictício · 2 perfis';
+      $('compare').disabled = false;
+      compare(true);
+    };
+  </script>
+</body>
+</html>
